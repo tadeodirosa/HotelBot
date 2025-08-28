@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Tipos de habitación
+model RoomType {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar(100)
+  capacity    Int
+  basePrice   Decimal  @map("base_price") @db.Decimal(10, 2)
+  description String?
+  amenities   Json     @default("[]")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+  
+  rooms Room[]
+
+  @@map("room_types")
+  @@index([name])
+}
+
+// Habitaciones
+model Room {
+  id         Int       @id @default(autoincrement())
+  name       String    @unique @db.VarChar(50)
+  roomTypeId Int       @map("room_type_id")
+  floor      Int?
+  status     RoomStatus @default(AVAILABLE)
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+  
+  roomType     RoomType      @relation(fields: [roomTypeId], references: [id])
+  reservations Reservation[]
+
+  @@map("rooms")
+  @@index([roomTypeId, status])
+}
+
+// Clientes
+model Customer {
+  id           Int       @id @default(autoincrement())
+  firstName    String    @map("first_name") @db.VarChar(100)
+  lastName     String    @map("last_name") @db.VarChar(100)
+  dni          String    @unique @db.VarChar(20)
+  email        String    @unique @db.VarChar(255)
+  phone        String    @db.VarChar(20)
+  dateOfBirth  DateTime? @map("date_of_birth") @db.Date
+  nationality  String?   @db.VarChar(50)
+  preferences  Json      @default("{}")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+  
+  reservations CustomerReservation[]
+
+  @@map("customers")
+  @@index([email])
+  @@index([dni])
+}
+
+// Planes de comida
+model MealPlan {
+  id            Int     @id @default(autoincrement())
+  name          String  @unique @db.VarChar(100)
+  description   String
+  priceModifier Decimal @map("price_modifier") @default(0.00) @db.Decimal(5, 2)
+  includes      Json
+  createdAt     DateTime @default(now()) @map("created_at")
+  
+  reservations Reservation[]
+
+  @@map("meal_plans")
+}
+
+// Reservas
+model Reservation {
+  id              Int       @id @default(autoincrement())
+  reservationCode String    @unique @map("reservation_code") @db.VarChar(20)
+  roomId          Int       @map("room_id")
+  startDate       DateTime  @map("start_date") @db.Date
+  endDate         DateTime  @map("end_date") @db.Date
+  guestCount      Int       @map("guest_count")
+  mealPlanId      Int?      @map("meal_plan_id")
+  totalAmount     Decimal   @map("total_amount") @db.Decimal(12, 2)
+  status          ReservationStatus @default(PENDING)
+  specialRequests Json      @map("special_requests") @default("{}")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  cancelledAt     DateTime? @map("cancelled_at")
+  
+  room      Room                   @relation(fields: [roomId], references: [id])
+  mealPlan  MealPlan?              @relation(fields: [mealPlanId], references: [id])
+  customers CustomerReservation[]
+
+  @@map("reservations")
+  @@index([startDate, endDate])
+  @@index([status])
+}
+
+// Tabla de relación Many-to-Many entre Clientes y Reservas
+model CustomerReservation {
+  customerId     Int     @map("customer_id")
+  reservationId  Int     @map("reservation_id")
+  isPrimaryGuest Boolean @map("is_primary_guest") @default(false)
+  createdAt      DateTime @default(now()) @map("created_at")
+  
+  customer    Customer    @relation(fields: [customerId], references: [id])
+  reservation Reservation @relation(fields: [reservationId], references: [id])
+
+  @@id([customerId, reservationId])
+  @@map("customer_reservations")
+}
+
+// Estados de habitación
+enum RoomStatus {
+  AVAILABLE    @map("available")
+  OCCUPIED     @map("occupied")
+  MAINTENANCE  @map("maintenance")
+  OUT_OF_ORDER @map("out_of_order")
+}
+
+// Estados de reserva
+enum ReservationStatus {
+  PENDING   @map("pending")
+  CONFIRMED @map("confirmed")
+  CANCELLED @map("cancelled")
+  COMPLETED @map("completed")
+}
