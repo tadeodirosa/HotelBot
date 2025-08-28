@@ -6,6 +6,7 @@ import { RoomTypesModule } from './room-types/room-types.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { CustomersModule } from './customers/customers.module';
 import { MealPlansModule } from './meal-plans/meal-plans.module';
+import { ReservationsModule } from './reservations/reservations.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { MealPlansModule } from './meal-plans/meal-plans.module';
     RoomsModule,
     CustomersModule,
     MealPlansModule,
+    ReservationsModule,
   ],
   controllers: [],
   providers: [],
