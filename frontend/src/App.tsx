@@ -9,6 +9,7 @@ import Reservations from './pages/Reservations.tsx'
 import ReservationsDebug from './pages/ReservationsDebug.tsx'
 import ReservationsSimple from './pages/ReservationsSimple.tsx'
 import ReservationsProfessional from './pages/ReservationsProfessional.tsx'
+import ReservationsTest from './pages/ReservationsTest.tsx'
 import Customers from './pages/Customers.tsx'
 import Rooms from './pages/Rooms.tsx'
 import RoomTypes from './pages/RoomTypes.tsx'
@@ -36,7 +37,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/reservations/*" element={<ReservationsProfessional />} />
+        <Route path="/reservations" element={<ReservationsProfessional />} />
         <Route path="/reservations-debug" element={<ReservationsDebug />} />
         <Route path="/reservations-simple" element={<ReservationsSimple />} />
         <Route path="/reservations-full" element={<Reservations />} />

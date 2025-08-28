@@ -1,10 +1,20 @@
 import React from 'react'
+import { Link, useLocation } from 'react-router-dom'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
+  const location = useLocation()
+
+  const isActiveRoute = (path: string) => {
+    if (path === '/dashboard') {
+      return location.pathname === '/dashboard'
+    }
+    return location.pathname.startsWith(path)
+  }
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
       <div className="flex">
@@ -14,24 +24,42 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             <h2 className="text-xl font-bold" style={{ color: '#1e40af' }}>🏨 HotelBot</h2>
           </div>
           <nav style={{ marginTop: '1.5rem' }}>
-            <a href="/dashboard" className="nav-item">
+            <Link 
+              to="/dashboard" 
+              className={`nav-item ${isActiveRoute('/dashboard') ? 'active' : ''}`}
+            >
               📊 Dashboard
-            </a>
-            <a href="/reservations" className="nav-item">
+            </Link>
+            <Link 
+              to="/reservations" 
+              className={`nav-item ${isActiveRoute('/reservations') ? 'active' : ''}`}
+            >
               📋 Reservas
-            </a>
-            <a href="/customers" className="nav-item">
+            </Link>
+            <Link 
+              to="/customers" 
+              className={`nav-item ${isActiveRoute('/customers') ? 'active' : ''}`}
+            >
               👥 Clientes
-            </a>
-            <a href="/rooms" className="nav-item">
+            </Link>
+            <Link 
+              to="/rooms" 
+              className={`nav-item ${isActiveRoute('/rooms') ? 'active' : ''}`}
+            >
               🏠 Habitaciones
-            </a>
-            <a href="/room-types" className="nav-item">
+            </Link>
+            <Link 
+              to="/room-types" 
+              className={`nav-item ${isActiveRoute('/room-types') ? 'active' : ''}`}
+            >
               🏨 Tipos de Habitación
-            </a>
-            <a href="/meal-plans" className="nav-item">
+            </Link>
+            <Link 
+              to="/meal-plans" 
+              className={`nav-item ${isActiveRoute('/meal-plans') ? 'active' : ''}`}
+            >
               🍽️ Planes de Comida
-            </a>
+            </Link>
           </nav>
         </div>
 

@@ -22,6 +22,7 @@ export interface Reservation {
     lastName: string
     email: string
     phone: string
+    documentNumber?: string
   }
   room?: {
     id: number
