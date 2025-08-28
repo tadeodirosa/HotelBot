@@ -37,15 +37,15 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
         {/* Main content */}
         <div className="main-content">
-          <header className="bg-white shadow border" style={{ borderColor: '#e5e7eb', marginBottom: '1.5rem' }}>
-            <div className="px-4 py-2">
+          <header className="bg-white shadow border" style={{ borderColor: '#e5e7eb', marginBottom: '0' }}>
+            <div style={{ padding: '1rem 2rem' }}>
               <h1 className="text-2xl font-medium text-gray-800">
                 Sistema de Gestión Hotelera
               </h1>
             </div>
           </header>
           
-          <main>
+          <main style={{ padding: '2rem' }}>
             {children}
           </main>
         </div>

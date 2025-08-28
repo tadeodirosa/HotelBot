@@ -1,28 +1,17 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-
-interface User {
-  id: number
-  email: string
-  firstName: string
-  lastName: string
-  role: string
-}
-
-interface LoginCredentials {
-  email: string
-  password: string
-}
+import { authService, type User, type LoginDto } from '../services/auth'
 
 interface AuthState {
   user: User | null
   token: string | null
   isAuthenticated: boolean
   isLoading: boolean
-  login: (credentials: LoginCredentials) => Promise<void>
-  logout: () => void
+  login: (credentials: LoginDto) => Promise<void>
+  logout: () => Promise<void>
   refreshToken: () => Promise<void>
   setLoading: (loading: boolean) => void
+  checkAuth: () => Promise<void>
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -37,77 +26,73 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: loading })
       },
 
-      login: async (credentials: LoginCredentials) => {
+      checkAuth: async () => {
+        try {
+          const token = authService.getToken()
+          const user = authService.getStoredUser()
+          
+          if (token && user) {
+            // Verificar si el token sigue siendo válido
+            const isValid = await authService.verifyToken()
+            if (isValid) {
+              set({ 
+                user, 
+                token, 
+                isAuthenticated: true 
+              })
+            } else {
+              // Token inválido, limpiar estado
+              await get().logout()
+            }
+          }
+        } catch (error) {
+          console.error('Error checking auth:', error)
+          await get().logout()
+        }
+      },
+
+      login: async (credentials: LoginDto) => {
         try {
           set({ isLoading: true })
           
-          const response = await fetch('http://localhost:3000/api/v1/auth/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(credentials),
-          })
-
-          if (!response.ok) {
-            throw new Error('Credenciales inválidas')
-          }
-
-          const data = await response.json()
+          const response = await authService.login(credentials)
           
           set({ 
-            user: data.data.user, 
-            token: data.data.accessToken, 
+            user: response.user, 
+            token: response.token, 
             isAuthenticated: true,
             isLoading: false 
           })
-          
-          localStorage.setItem('access_token', data.data.accessToken)
         } catch (error) {
           set({ isLoading: false })
           throw error
         }
       },
 
-      logout: () => {
-        set({ 
-          user: null, 
-          token: null, 
-          isAuthenticated: false,
-          isLoading: false 
-        })
-        localStorage.removeItem('access_token')
+      logout: async () => {
+        try {
+          await authService.logout()
+        } catch (error) {
+          console.error('Error during logout:', error)
+        } finally {
+          set({ 
+            user: null, 
+            token: null, 
+            isAuthenticated: false,
+            isLoading: false 
+          })
+        }
       },
 
       refreshToken: async () => {
         try {
-          const token = get().token
-          if (!token) {
-            throw new Error('No token available')
-          }
-
-          const response = await fetch('http://localhost:3000/api/v1/auth/refresh', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          })
-
-          if (!response.ok) {
-            throw new Error('Token refresh failed')
-          }
-
-          const data = await response.json()
-          
+          const response = await authService.refreshToken()
           set({ 
-            token: data.data.accessToken, 
+            token: response.token
           })
-          
-          localStorage.setItem('access_token', data.data.accessToken)
         } catch (error) {
           // Si falla el refresh, logout
-          get().logout()
+          await get().logout()
           throw error
         }
       },
