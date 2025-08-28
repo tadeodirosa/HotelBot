@@ -1,0 +1,16 @@
+# Comandos para conectar con GitHub (ejecutar después de crear el repo)
+
+# 1. Agregar el origin remoto (reemplazar TU_USUARIO con tu username de GitHub)
+git remote add origin https://github.com/TU_USUARIO/HotelBot.git
+
+# 2. Verificar que el remote se agregó correctamente
+git remote -v
+
+# 3. Cambiar a rama main (opcional, GitHub usa main por defecto ahora)
+git branch -M main
+
+# 4. Push inicial
+git push -u origin main
+
+# 5. Verificar que todo se subió correctamente
+# Ir a https://github.com/TU_USUARIO/HotelBot para verificar

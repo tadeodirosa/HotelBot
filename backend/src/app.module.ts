@@ -4,6 +4,7 @@ import { PrismaModule } from './config/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { RoomTypesModule } from './room-types/room-types.module';
 import { RoomsModule } from './rooms/rooms.module';
+import { CustomersModule } from './customers/customers.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { RoomsModule } from './rooms/rooms.module';
     AuthModule,
     RoomTypesModule,
     RoomsModule,
+    CustomersModule,
   ],
   controllers: [],
   providers: [],
